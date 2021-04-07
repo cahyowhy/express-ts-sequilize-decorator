@@ -1,3 +1,4 @@
+import { Inject } from 'typescript-ioc';
 import { NextFunction, Response } from 'express';
 import ajv from '../config/ajv';
 import logger from '../config/logger';
@@ -16,12 +17,14 @@ import {
   Put,
 } from './IController';
 import UserService from '../service/UserService';
-import { authenticateAccessToken, queryParseFilter } from '../middleware';
+import { authenticateAccessToken, queryParseFilter } from '../api/middleware';
 
 @Controller('/users')
 export default class UserController implements IController {
-  constructor(public userService: UserService,
-    public postValidator = ajv.compile(jsonPostSchema),
+  @Inject
+  public userService!: UserService;
+
+  constructor(public postValidator = ajv.compile(jsonPostSchema),
     public updateValidator = ajv.compile(jsonUpdateSchema),
     public loginValidator = ajv.compile(jsonLoginSchema)) {
   }

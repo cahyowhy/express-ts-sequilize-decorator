@@ -4,9 +4,9 @@ import { Response } from 'express';
 import {
   CRequest,
   TReqHandler,
-} from '../controller/IController';
-import logger from '../config/logger';
-import Constant from '../constant';
+} from '../../controller/IController';
+import logger from '../../config/logger';
+import Constant from '../../constant';
 
 export const errorHandler = (err: any, _req: any, res: any, next: Function) => {
   if (res.headersSent) {

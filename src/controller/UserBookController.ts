@@ -1,3 +1,4 @@
+import { Inject } from 'typescript-ioc';
 import { NextFunction, Response } from 'express';
 import ajv from '../config/ajv';
 import {
@@ -12,12 +13,14 @@ import {
   Post,
 } from './IController';
 import UserBookService from '../service/UserBookService';
-import { authenticateAccessToken, queryParseFilter } from '../middleware';
+import { authenticateAccessToken, queryParseFilter } from '../api/middleware';
 
 @Controller('/user-books')
 export default class UserBookController implements IController {
-  constructor(public userBookService: UserBookService,
-    public postValidator = ajv.compile(jsonPostSchema)) {
+  @Inject
+  public userBookService!: UserBookService;
+
+  constructor(public postValidator = ajv.compile(jsonPostSchema)) {
   }
 
   @Get('/', [authenticateAccessToken, queryParseFilter])

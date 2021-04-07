@@ -1,4 +1,5 @@
 import { Repository } from 'sequelize-typescript';
+import { InjectValue } from 'typescript-ioc';
 import bcrypt from 'bcrypt';
 import User, {
   UserRole,
@@ -10,10 +11,14 @@ import { generateAccessToken, generateRefreshToken } from '../util';
 import UserSession from '../model/UserSession';
 
 export default class UserService implements IService<UserProp> {
-  constructor(public repository: Repository<User>,
-    public userBookRepository: Repository<UserBook>,
-    public userSessionRepository: Repository<UserSession>) {
-  }
+  @InjectValue('userRepository')
+  public userRepository!: Repository<User>;
+
+  @InjectValue('userBookRepository')
+  public userBookRepository!: Repository<UserBook>;
+
+  @InjectValue('userSessionRepository')
+  public userSessionRepository!: Repository<UserSession>;
 
   public find(param: ParamGet) {
     const { offset, limit, filter } = param;
@@ -24,11 +29,11 @@ export default class UserService implements IService<UserProp> {
       where: filter,
     };
 
-    return this.repository.findAll(option);
+    return this.userRepository.findAll(option);
   }
 
   public findById(id: number | string) {
-    return this.repository.findByPk(id, { attributes: { exclude: ['password'] } });
+    return this.userRepository.findByPk(id, { attributes: { exclude: ['password'] } });
   }
 
   public async create(param: UserProp) {
@@ -36,19 +41,19 @@ export default class UserService implements IService<UserProp> {
     newParam.password = await bcrypt.hash(newParam.password, await bcrypt.genSalt(10));
     newParam.role = UserRole.USER;
 
-    const result = await this.repository.create(newParam);
+    const result = await this.userRepository.create(newParam);
 
     return result;
   }
 
   public async update(id: number | string, param: UserProp) {
-    const results = await this.repository.update(param, { where: { id } });
+    const results = await this.userRepository.update(param, { where: { id } });
 
     return results[1] && results[1][0];
   }
 
   public count({ filter }: ParamGet) {
-    return this.repository.count({ where: filter });
+    return this.userRepository.count({ where: filter });
   }
 
   public async login(param: UserProp): Promise<UserProp | null> {
@@ -56,7 +61,7 @@ export default class UserService implements IService<UserProp> {
     if (param && param.email) filter.email = param.email;
     if (param && param.username) filter.username = param.username;
 
-    const user = await this.repository.findOne({ where: filter });
+    const user = await this.userRepository.findOne({ where: filter });
 
     if (user) {
       const userPlain = user.get({ plain: true });
@@ -80,7 +85,7 @@ export default class UserService implements IService<UserProp> {
     const param = { where: { refreshToken }, plain: true };
     const userSession = await this.userSessionRepository.findOne(param);
     if (userSession && userSession.expired.getTime() > new Date().getTime()) {
-      const user = await this.repository.findOne({ where: { username: userSession.username } });
+      const user = await this.userRepository.findOne({ where: { username: userSession.username } });
 
       if (user) {
         const userPlain = user.get({ plain: true });
@@ -117,7 +122,7 @@ export default class UserService implements IService<UserProp> {
   }
 
   public async findUserBorrowedBook(id: number | string): Promise<Array<User>> {
-    return this.repository.findAll({
+    return this.userRepository.findAll({
       include: [this.userBookRepository],
       where: { id },
       attributes: { exclude: ['password'] },
