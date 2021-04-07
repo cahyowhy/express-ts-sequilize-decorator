@@ -1,0 +1,36 @@
+{
+  "compilerOptions": {
+    "plugins": [
+      {
+        "name": "typescript-tslint-plugin"
+      }
+    ],
+    "target": "es6",
+    "module": "commonjs",
+    "rootDir": ".",
+    "outDir": "./build",
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "experimentalDecorators": true,
+    "strict": true,
+    "moduleResolution": "node",
+    "emitDecoratorMetadata": true,
+    "resolveJsonModule": true,
+    "lib": [
+      "esnext"
+    ],
+    "types": [
+      "node"
+    ],
+    "typeRoots": [
+      "./node_modules/@types"
+    ],
+  },
+  "include": [
+    "./src/**/*.ts",
+    "./seed/**/*.ts",
+  ],
+  "exclude": [
+    "./node_modules/"
+  ],
+}
