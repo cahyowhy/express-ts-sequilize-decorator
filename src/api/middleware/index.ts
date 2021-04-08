@@ -7,6 +7,7 @@ import {
 } from '../../controller/IController';
 import logger from '../../config/logger';
 import Constant from '../../constant';
+import { UserProp, UserRole } from '../../model/User';
 
 export const errorHandler = (err: any, _req: any, res: any, next: Function) => {
   if (res.headersSent) {
@@ -41,16 +42,39 @@ export const queryParseFilter: TReqHandler = (req: CRequest, res: Response, next
   return next();
 };
 
+export const authenticateAdmin: TReqHandler = async (req, res, next) => {
+  const isAuthorized = req.headers.authorization && (req as any).user
+    && (req as any).user.role === UserRole.ADMIN;
+
+  if (isAuthorized) {
+    return next();
+  }
+
+  return res.status(401).send({ success: false, message: 'Unauthorize' });
+};
+
+export const validateParamsProp = (key: string, type: 'string' | 'number' = 'string'): TReqHandler => (req, res, next) => {
+  if (req.params[key] && type !== 'string') {
+    req.params[key] = parseInt(req.params[key] as string, 10);
+
+    if (Number.isNaN(req.params[key] as number)) {
+      return res.status(400).send({ message: 'req.params are invalid' });
+    }
+  }
+
+  return next();
+};
+
 export const authenticateAccessToken: TReqHandler = async (req, res, next) => {
   const authHeader = req.headers.authorization;
 
   if (authHeader) {
     const token = authHeader.split(' ')[1];
-    const promiseJwt = new Promise((resolve, reject) => {
+    const promiseJwt = new Promise<UserProp>((resolve, reject) => {
       jwt.verify(token, (process.env.JWT_SECRET as string), (err, user) => {
         if (err) reject(err);
 
-        resolve(user);
+        resolve(user as UserProp);
       });
     });
 

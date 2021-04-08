@@ -2,13 +2,15 @@ import 'reflect-metadata';
 import express from 'express';
 import { Sequelize } from 'sequelize-typescript';
 import cookieParser from 'cookie-parser';
+import logger from './config/logger';
+
 import User from './model/User';
 import UserBook from './model/UserBook';
 import Book from './model/Book';
 import UserSession from './model/UserSession';
+import UserFineHistory from './model/UserFineHistory';
 
 import { errorHandler } from './api/middleware';
-import logger from './config/logger';
 import setupApiRouter from './api/router';
 
 require('dotenv').config();
@@ -21,7 +23,7 @@ const sequelizeInstance = new Sequelize({
   password: process.env.DB_PASSWORD as string,
   database: process.env.DB as string,
   port: (parseInt(process.env.DB_PORT as string, 10) || 5432) as number,
-  models: [User, Book, UserBook, UserSession],
+  models: [User, Book, UserBook, UserSession, UserFineHistory],
   repositoryMode: true,
   logging: process.env.NODE_ENV === 'development',
 });
@@ -37,6 +39,7 @@ sequelizeInstance.sync().then(() => {
     logger.info('Started express on port 3000');
   });
 }).catch((e) => {
-  logger.error(e);
+  // eslint-disable-next-line no-console
+  console.log(e);
   process.exit(1);
 });

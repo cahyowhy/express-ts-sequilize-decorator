@@ -1,4 +1,4 @@
-import { ParamsDictionary, RequestHandler } from 'express-serve-static-core';
+import { RequestHandler } from 'express-serve-static-core';
 import { Request } from 'express';
 import 'reflect-metadata';
 
@@ -85,9 +85,13 @@ export type ReqQuery = {
   sort?: any,
 };
 
-export type CRequest = Request<ParamsDictionary, any, ReqBody, ReqQuery, any>;
+export interface CParamsDictionary {
+  [key: string]: string | number;
+}
 
-export type TReqHandler = RequestHandler<ParamsDictionary, any, ReqBody, ReqQuery, any>;
+export type CRequest = Request<CParamsDictionary, any, ReqBody, ReqQuery, any>;
+
+export type TReqHandler = RequestHandler<CParamsDictionary, any, ReqBody, ReqQuery, any>;
 
 export interface IController {
   find?: TReqHandler;

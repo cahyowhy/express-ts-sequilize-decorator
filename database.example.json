@@ -1,0 +1,11 @@
+{
+  "dev": {
+    "driver": "pg",
+    "user": "your db_user",
+    "password": "your db_password",
+    "host": "your db_host",
+    "database": "your db_database",
+    "port": "your db_port"
+  },
+  "sql-file": true
+}

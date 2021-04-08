@@ -23,10 +23,6 @@ export default class UserBook extends Model {
   bookId!: number;
 
   @AllowNull(false)
-  @Column({ unique: true })
-  reffKey!: string;
-
-  @AllowNull(false)
   @Column
   borrowDate!: Date;
 
@@ -35,9 +31,8 @@ export default class UserBook extends Model {
 }
 
 export type UserBookProp = {
-  userId?: number;
-  bookId?: number;
-  reffKey: string;
+  userId: number;
+  bookId: number;
   borrowDate: Date;
   returnDate?: Date;
 };
@@ -54,5 +49,20 @@ export const jsonPostSchema = {
     'userId',
     'bookId',
   ],
+  additionalProperties: false,
+};
+
+export const jsonBorrowReturnSchema = {
+  type: 'object',
+  properties: {
+    books: { type: 'array' },
+    items: {
+      properties: {
+        bookId: { type: 'number' },
+      },
+      required: ['bookId'],
+    },
+  },
+  required: ['books'],
   additionalProperties: false,
 };
