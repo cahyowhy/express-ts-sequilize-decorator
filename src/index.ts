@@ -1,7 +1,5 @@
 import 'reflect-metadata';
-import express from 'express';
 import { Sequelize } from 'sequelize-typescript';
-import cookieParser from 'cookie-parser';
 import logger from './config/logger';
 
 import User from './model/User';
@@ -9,13 +7,10 @@ import UserBook from './model/UserBook';
 import Book from './model/Book';
 import UserSession from './model/UserSession';
 import UserFineHistory from './model/UserFineHistory';
-
-import { errorHandler } from './api/middleware';
-import setupApiRouter from './api/router';
+import setupApp from './app';
 
 require('dotenv').config();
 
-const app = express();
 const sequelizeInstance = new Sequelize({
   dialect: 'postgres',
   host: process.env.DB_HOST as string,
@@ -29,11 +24,7 @@ const sequelizeInstance = new Sequelize({
 });
 
 sequelizeInstance.sync().then(() => {
-  app.use(express.json());
-  app.use(cookieParser());
-  app.use(express.urlencoded({ extended: false }));
-  setupApiRouter(app, sequelizeInstance);
-  app.use(errorHandler);
+  const app = setupApp(sequelizeInstance);
 
   app.listen(3000, () => {
     logger.info('Started express on port 3000');

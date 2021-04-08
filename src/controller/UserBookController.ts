@@ -108,7 +108,7 @@ export default class UserBookController implements IController {
     }
   }
 
-  @Get('/count', [authenticateAccessToken, queryParseFilter])
+  @Get('/paging/count', [authenticateAccessToken, queryParseFilter])
   public async count(req: CRequest, res: Response, next: NextFunction) {
     try {
       const result = await this.userBookService.count(req.query.filter);

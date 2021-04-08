@@ -22,10 +22,8 @@ export default class BookService implements IService<BookProp> {
     return this.bookRepository.create(param);
   }
 
-  public async update(id: number | string, param: BookProp) {
-    const results = await this.bookRepository.update(param, { where: { id } });
-
-    return results[1] && results[1][0];
+  public update(id: number | string, param: BookProp) {
+    return this.bookRepository.update(param, { where: { id } });
   }
 
   public count({ filter }: ParamGet) {

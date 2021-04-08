@@ -20,7 +20,8 @@
       "esnext"
     ],
     "types": [
-      "node"
+      "node",
+      "mocha"
     ],
     "typeRoots": [
       "./node_modules/@types"
@@ -29,6 +30,7 @@
   "include": [
     "./src/**/*.ts",
     "./seed/**/*.ts",
+    "./tests/**/*.ts",
   ],
   "exclude": [
     "./node_modules/"

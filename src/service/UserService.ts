@@ -46,10 +46,8 @@ export default class UserService implements IService<UserProp> {
     return result;
   }
 
-  public async update(id: number | string, param: UserProp) {
-    const results = await this.userRepository.update(param, { where: { id } });
-
-    return results[1] && results[1][0];
+  public update(id: number | string, param: UserProp) {
+    return this.userRepository.update(param, { where: { id } });
   }
 
   public count({ filter }: ParamGet) {

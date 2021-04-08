@@ -17,7 +17,7 @@ import {
   Put,
 } from './IController';
 import UserService from '../service/UserService';
-import { authenticateAccessToken, queryParseFilter } from '../api/middleware';
+import { authenticateAccessToken, queryParseFilter, validateParamsProp } from '../api/middleware';
 
 @Controller('/users')
 export default class UserController implements IController {
@@ -40,7 +40,7 @@ export default class UserController implements IController {
     }
   }
 
-  @Get('/:id', [authenticateAccessToken])
+  @Get('/:id', [authenticateAccessToken, validateParamsProp('id', 'number')])
   public async findById(req: CRequest, res: Response, next: NextFunction) {
     try {
       const result = await this.userService.findById(req.params.id);
@@ -56,32 +56,35 @@ export default class UserController implements IController {
     try {
       if (this.postValidator(req.body)) {
         const result = await this.userService.create(req.body as UserProp);
+        const resultFormated = result.get({ plain: true });
 
-        return res.send({ data: result });
+        delete resultFormated.password;
+
+        return res.send({ data: resultFormated });
       }
 
-      return res.status(400).send(this.postValidator.errors);
+      return res.status(400).send({ data: this.postValidator.errors, message: 'validation error' });
     } catch (e) {
       return next(e);
     }
   }
 
-  @Put('/:id', [authenticateAccessToken])
+  @Put('/:id', [authenticateAccessToken, validateParamsProp('id', 'number')])
   public async put(req: CRequest, res: Response, next: NextFunction) {
     try {
       if (this.updateValidator(req.body)) {
-        const result = await this.userService.update(req.params.id, req.body as UserProp);
+        await this.userService.update(req.params.id, req.body as UserProp);
 
-        return res.send({ data: result });
+        return res.send({ message: 'update succeed' });
       }
 
-      return res.status(400).send(this.updateValidator.errors);
+      return res.status(400).send({ data: this.updateValidator.errors, message: 'validation error' });
     } catch (e) {
       return next(e);
     }
   }
 
-  @Get('/count', [authenticateAccessToken, queryParseFilter])
+  @Get('/paging/count', [authenticateAccessToken, queryParseFilter])
   public async count(req: CRequest, res: Response, next: NextFunction) {
     try {
       const result = await this.userService.count(req.query.filter);
@@ -107,7 +110,7 @@ export default class UserController implements IController {
         return res.status(401).send({ message: 'Cannot find username or email' });
       }
 
-      return res.status(400).send(this.loginValidator.errors);
+      return res.status(400).send({ data: this.loginValidator.errors, message: 'validation error' });
     } catch (e) {
       return next(e);
     }

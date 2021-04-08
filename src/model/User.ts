@@ -69,11 +69,11 @@ export type UserProp = {
 const properties = {
   firstName: { type: 'string' },
   lastName: { type: 'string' },
+  phoneNumber: { type: 'string' },
+  birthDate: { type: 'string', format: 'date-time' },
   password: { type: 'string' },
   username: { type: 'string' },
   email: { type: 'string' },
-  phoneNumber: { type: 'string' },
-  birthDate: { type: 'string', format: 'date-time' },
   bio: { type: 'string' },
   role: { type: 'string' },
 };
@@ -93,11 +93,23 @@ export const jsonPostSchema = {
   additionalProperties: false,
 };
 
+const {
+  firstName,
+  lastName,
+  phoneNumber,
+  birthDate,
+} = properties;
+
+const updateProperties = {
+  firstName,
+  lastName,
+  phoneNumber,
+  birthDate,
+};
+
 export const jsonUpdateSchema = {
   type: 'object',
-  properties,
-  oneOf: ['firstName', 'lastName', 'phoneNumber', 'birthDate']
-    .map((key) => ({ required: [key] })),
+  properties: updateProperties,
   additionalProperties: false,
 };
 

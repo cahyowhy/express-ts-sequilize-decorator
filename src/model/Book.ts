@@ -50,10 +50,3 @@ export const jsonPostSchema = {
   ],
   additionalProperties: false,
 };
-
-export const jsonUpdateSchema = {
-  type: 'object',
-  properties,
-  oneOf: ['title', 'author', 'sheet', 'introduction', 'dateOffIssue']
-    .map((key) => ({ required: [key] })),
-};

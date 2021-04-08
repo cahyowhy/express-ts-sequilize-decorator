@@ -3,7 +3,6 @@ import { NextFunction, Response } from 'express';
 import ajv from '../config/ajv';
 import {
   jsonPostSchema,
-  jsonUpdateSchema,
   BookProp,
 } from '../model/Book';
 import {
@@ -15,15 +14,14 @@ import {
   Put,
 } from './IController';
 import BookService from '../service/BookService';
-import { authenticateAccessToken, queryParseFilter } from '../api/middleware';
+import { authenticateAccessToken, queryParseFilter, validateParamsProp } from '../api/middleware';
 
 @Controller('/books')
 export default class BookController implements IController {
   @Inject
   public bookService!: BookService;
 
-  constructor(public postValidator = ajv.compile(jsonPostSchema),
-    public updateValidator = ajv.compile(jsonUpdateSchema)) {
+  constructor(public postValidator = ajv.compile(jsonPostSchema)) {
   }
 
   @Get('/', [authenticateAccessToken, queryParseFilter])
@@ -37,7 +35,7 @@ export default class BookController implements IController {
     }
   }
 
-  @Get('/:id', [authenticateAccessToken])
+  @Get('/:id', [authenticateAccessToken, validateParamsProp('id', 'number')])
   public async findById(req: CRequest, res: Response, next: NextFunction) {
     try {
       const result = await this.bookService.findById(req.params.id);
@@ -63,22 +61,18 @@ export default class BookController implements IController {
     }
   }
 
-  @Put('/:id', [authenticateAccessToken])
+  @Put('/:id', [authenticateAccessToken, validateParamsProp('id', 'number')])
   public async put(req: CRequest, res: Response, next: NextFunction) {
     try {
-      if (this.updateValidator(req.body)) {
-        const result = await this.bookService.update(req.params.id, req.body as BookProp);
+      await this.bookService.update(req.params.id, req.body as BookProp);
 
-        return res.send({ data: result });
-      }
-
-      return res.status(400).send(this.updateValidator.errors);
+      return res.send({ message: 'update succeed' });
     } catch (e) {
       return next(e);
     }
   }
 
-  @Get('/count', [authenticateAccessToken, queryParseFilter])
+  @Get('/paging/count', [authenticateAccessToken, queryParseFilter])
   public async count(req: CRequest, res: Response, next: NextFunction) {
     try {
       const result = await this.bookService.count(req.query.filter);

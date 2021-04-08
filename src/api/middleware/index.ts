@@ -1,6 +1,5 @@
 import jwt from 'jsonwebtoken';
 import { Response } from 'express';
-// eslint-disable-next-line import/no-cycle
 import {
   CRequest,
   TReqHandler,
@@ -15,7 +14,7 @@ export const errorHandler = (err: any, _req: any, res: any, next: Function) => {
   }
 
   logger.error((err && err.name) || err.toString());
-  return res.status(500).send({ success: false, data: err && err.stack });
+  return res.status(500).send({ success: false, message: err && err.stack });
 };
 
 export const queryParseFilter: TReqHandler = (req: CRequest, res: Response, next) => {
@@ -57,7 +56,7 @@ export const validateParamsProp = (key: string, type: 'string' | 'number' = 'str
   if (req.params[key] && type !== 'string') {
     req.params[key] = parseInt(req.params[key] as string, 10);
 
-    if (Number.isNaN(req.params[key] as number)) {
+    if (!req.params[key]) {
       return res.status(400).send({ message: 'req.params are invalid' });
     }
   }
