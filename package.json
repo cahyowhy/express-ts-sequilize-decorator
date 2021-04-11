@@ -7,7 +7,7 @@
     "test-nolint": "mocha -r ts-node/register tests/**/*.ts",
     "test": "npm run lint && mocha -r ts-node/register tests/**/*.ts",
     "start": "node build/src/index.js",
-    "build": "rimraf build && tsc -p .",
+    "build": "rimraf build && tsc --build tsconfig.prod.json",
     "build_and_start": "npm run build && npm run start",
     "lint": "eslint . --ext .ts",
     "lint-fix": "eslint . --ext .ts --fix",
