@@ -4,6 +4,7 @@ import ajv from '../config/ajv';
 import {
   jsonPostSchema,
   BookProp,
+  jsonUpdateSchema,
 } from '../model/Book';
 import {
   Controller,
@@ -21,7 +22,8 @@ export default class BookController implements IController {
   @Inject
   public bookService!: BookService;
 
-  constructor(public postValidator = ajv.compile(jsonPostSchema)) {
+  constructor(public postValidator = ajv.compile(jsonPostSchema),
+    public updateValidator = ajv.compile(jsonUpdateSchema)) {
   }
 
   @Get('/', [authenticateAccessToken, queryParseFilter])
@@ -55,7 +57,7 @@ export default class BookController implements IController {
         return res.send({ data: result });
       }
 
-      return res.status(400).send(this.postValidator.errors);
+      return res.status(400).send({ data: this.postValidator.errors, message: 'validation error' });
     } catch (e) {
       return next(e);
     }
@@ -64,9 +66,13 @@ export default class BookController implements IController {
   @Put('/:id', [authenticateAccessToken, validateParamsProp('id', 'number')])
   public async put(req: CRequest, res: Response, next: NextFunction) {
     try {
-      await this.bookService.update(req.params.id, req.body as BookProp);
+      if (this.updateValidator(req.body)) {
+        await this.bookService.update(req.params.id, req.body as BookProp);
 
-      return res.send({ message: 'update succeed' });
+        return res.send({ message: 'update succeed' });
+      }
+
+      return res.status(400).send({ data: this.updateValidator.errors, message: 'validation error' });
     } catch (e) {
       return next(e);
     }
@@ -75,7 +81,7 @@ export default class BookController implements IController {
   @Get('/paging/count', [authenticateAccessToken, queryParseFilter])
   public async count(req: CRequest, res: Response, next: NextFunction) {
     try {
-      const result = await this.bookService.count(req.query.filter);
+      const result = await this.bookService.count(req.query);
 
       return res.send({ data: result });
     } catch (e) {

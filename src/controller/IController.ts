@@ -66,14 +66,6 @@ export const Put = (path: string = '', middlewares: Array<TReqHandler> = []): Me
   middlewares,
 });
 
-export const Delete = (path: string = '', middlewares: Array<TReqHandler> = []): MethodDecorator => (target, propertyKey: string | symbol): void => applyRouteDecorator({
-  method: 'delete',
-  path,
-  target,
-  propertyKey,
-  middlewares,
-});
-
 export type ReqBody = {
   [key: string]: any
 };

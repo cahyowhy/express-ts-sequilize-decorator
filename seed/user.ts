@@ -39,8 +39,9 @@ export default async (total = 10): Promise<Array<UserProp>> => {
 
   const passwords = await Promise.all(promisePassword);
 
-  return passwords.map((password) => {
+  return passwords.map((password, index) => {
     const user = generateUserNoPassword(1)[0];
+    if (index === 1) user.role = UserRole.ADMIN;
 
     return {
       password: (password as string),

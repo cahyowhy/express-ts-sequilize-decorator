@@ -87,7 +87,7 @@ export default class UserController implements IController {
   @Get('/paging/count', [authenticateAccessToken, queryParseFilter])
   public async count(req: CRequest, res: Response, next: NextFunction) {
     try {
-      const result = await this.userService.count(req.query.filter);
+      const result = await this.userService.count(req.query);
 
       return res.send({ data: result });
     } catch (e) {
@@ -102,7 +102,7 @@ export default class UserController implements IController {
         const result = await this.userService.login(req.body as UserProp);
 
         if (result) {
-          await this.setRefreshToken(res, result.username);
+          await this.setRefreshToken(req, res, result.username);
 
           return res.send({ data: result });
         }
@@ -116,12 +116,15 @@ export default class UserController implements IController {
     }
   }
 
+  // cannot set cookie if the domain or port was different. its ok thou if subdomain
   @Get('/auth/session')
   public async session(req: CRequest, res: Response, next: NextFunction) {
     try {
-      const result = await this.userService.findUserSession(req.cookies.refresh_token);
+      if (req.cookies.refresh_token) {
+        const result = await this.userService.findUserSession(req.cookies.refresh_token);
 
-      if (result) return res.send({ data: result });
+        if (result) return res.send({ data: result });
+      }
 
       return res.status(401).send({ message: 'Unauthorize' });
     } catch (e) {
@@ -129,13 +132,19 @@ export default class UserController implements IController {
     }
   }
 
+  // cannot set cookie if the domain or port was different. its ok thou if subdomain
   @Get('/auth/logout', [authenticateAccessToken])
   public async logout(req: CRequest, res: Response, next: NextFunction) {
     try {
+      if (!req.cookies.refresh_token) {
+        return res.status(401).send({ message: 'Unauthorize' });
+      }
+
       res.cookie('refresh_token', '', {
         httpOnly: true,
-        secure: true,
         expires: new Date(),
+        secure: true,
+        sameSite: false,
       });
 
       await this.userService.removeUserSession(req.cookies.refresh_token);
@@ -146,13 +155,14 @@ export default class UserController implements IController {
     }
   }
 
-  private async setRefreshToken(res: Response, username: string) {
+  private async setRefreshToken(req: CRequest, res: Response, username: string) {
     try {
       const result = await (await this.userService.saveUserSession(username)).get({ plain: true });
-      const cookieOption = {
+      const cookieOption: any = {
         httpOnly: true,
         expires: result.expired,
         secure: true,
+        sameSite: false,
       };
 
       res.cookie('refresh_token', result.refreshToken, cookieOption);
@@ -161,7 +171,7 @@ export default class UserController implements IController {
     }
   }
 
-  @Get('/user-books/:id', [authenticateAccessToken])
+  @Get('/user-books/:id', [authenticateAccessToken, validateParamsProp('id', 'number')])
   public async findUserBorowedBook(req: CRequest, res: Response, next: NextFunction) {
     try {
       const result = await this.userService.findUserBorrowedBook(req.params.id);

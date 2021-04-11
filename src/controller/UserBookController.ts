@@ -4,7 +4,6 @@ import ajv from '../config/ajv';
 import {
   jsonBorrowReturnSchema,
   jsonPostSchema,
-  UserBookProp,
 } from '../model/UserBook';
 import {
   Controller,
@@ -21,7 +20,6 @@ import {
   queryParseFilter,
   validateParamsProp,
 } from '../api/middleware';
-import Constant from '../constant';
 
 @Controller('/user-books')
 export default class UserBookController implements IController {
@@ -47,18 +45,6 @@ export default class UserBookController implements IController {
   public async borrowBook(req: CRequest, res: Response, next: NextFunction) {
     try {
       if (this.borrowReturnValidator(req.body)) {
-        const isExceedMax = req.body && req.body.books
-          && req.body.books.length > Constant.MAX_BORROW_BOOK;
-        const isContainData = req.body && req.body.books && req.body.books.length;
-
-        if (!isContainData) {
-          return res.status(400).send({ message: 'Payload cannot be empty' });
-        }
-
-        if (isExceedMax) {
-          return res.status(400).send({ message: `Max borrows book : ${Constant.MAX_BORROW_BOOK}` });
-        }
-
         const results = await this.userBookService.borrowBooks(req.params.userId, req.body.books);
 
         if (Array.isArray(results) && results.length) {
@@ -68,7 +54,7 @@ export default class UserBookController implements IController {
         return res.status(400).send({ message: results });
       }
 
-      return res.status(400).send({ message: 'Payload are invalid or its empty' });
+      return res.status(400).send({ data: this.borrowReturnValidator.errors, message: 'Payload are invalid or its empty' });
     } catch (e) {
       return next(e);
     }
@@ -87,22 +73,7 @@ export default class UserBookController implements IController {
         return res.status(500).send({ message: 'Error happen ! contact Administrator' });
       }
 
-      return res.status(400).send({ message: 'Payload should not empty' });
-    } catch (e) {
-      return next(e);
-    }
-  }
-
-  @Post('/', [authenticateAccessToken])
-  public async post(req: CRequest, res: Response, next: NextFunction) {
-    try {
-      if (this.postValidator(req.body)) {
-        const result = await this.userBookService.create(req.body as UserBookProp);
-
-        return res.send({ data: result });
-      }
-
-      return res.status(400).send(this.postValidator.errors);
+      return res.status(400).send({ data: this.borrowReturnValidator.errors, message: 'Payload should not empty' });
     } catch (e) {
       return next(e);
     }
@@ -111,7 +82,7 @@ export default class UserBookController implements IController {
   @Get('/paging/count', [authenticateAccessToken, queryParseFilter])
   public async count(req: CRequest, res: Response, next: NextFunction) {
     try {
-      const result = await this.userBookService.count(req.query.filter);
+      const result = await this.userBookService.count(req.query);
 
       return res.send({ data: result });
     } catch (e) {

@@ -1,6 +1,8 @@
 import { NextFunction, Response, Router } from 'express';
 import jwt from 'jsonwebtoken';
 import randToken from 'rand-token';
+import dayjs from 'dayjs';
+import Constant from '../constant';
 import { CRequest, RouteDefinition } from '../controller/IController';
 import { UserProp } from '../model/User';
 
@@ -10,6 +12,19 @@ export function generateAccessToken(user: UserProp) {
 
 export function generateRefreshToken() {
   return randToken.uid(256);
+}
+
+export function countTotalFine(borrowDate: Date) {
+  const returnDate = new Date();
+  const diffDay = dayjs(returnDate).diff(borrowDate, 'd');
+
+  if (diffDay > Constant.MAX_DAY_BORROW_BOOK) {
+    const lateDay = diffDay - Constant.MAX_DAY_BORROW_BOOK;
+
+    return lateDay * Constant.FINE_LATE_RETURN_BOOK_PER_DAY;
+  }
+
+  return 0;
 }
 
 export function applyRouter(Controller: any, instance: { [key: string]: any }): Router {

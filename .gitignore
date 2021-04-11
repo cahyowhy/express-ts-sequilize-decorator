@@ -5,3 +5,6 @@ build/
 backup-docker/
 database.json
 migrations/
+.nyc_output/
+coverage/
+src/log/*

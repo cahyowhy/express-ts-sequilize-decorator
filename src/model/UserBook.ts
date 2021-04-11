@@ -5,6 +5,7 @@ import {
   Model,
   Table,
 } from 'sequelize-typescript';
+import Constant from '../constant';
 import Book from './Book';
 
 // eslint-disable-next-line import/no-cycle
@@ -55,7 +56,7 @@ export const jsonPostSchema = {
 export const jsonBorrowReturnSchema = {
   type: 'object',
   properties: {
-    books: { type: 'array' },
+    books: { type: 'array', minItems: 1, maxItems: Constant.MAX_BORROW_BOOK },
     items: {
       properties: {
         bookId: { type: 'number' },

@@ -1,12 +1,12 @@
 import { Repository } from 'sequelize-typescript';
 import { Op, Sequelize, Transaction } from 'sequelize';
 import { InjectValue } from 'typescript-ioc';
-import dayjs from 'dayjs';
 import Constant from '../constant';
 import UserBook, { UserBookProp } from '../model/UserBook';
 import { IService, ParamGet } from './IService';
 import logger from '../config/logger';
 import UserFineHistory from '../model/UserFineHistory';
+import { countTotalFine } from '../util';
 
 export enum BorrowType {
   exceed = 'Your borrowed book are exceeded',
@@ -28,17 +28,6 @@ export default class UserBookService implements IService<UserBookProp> {
     const option = { offset, limit, where: filter };
 
     return this.userBookRepository.findAll(option);
-  }
-
-  public findById(id: number | string) {
-    return this.userBookRepository.findByPk(id);
-  }
-
-  public create(param: UserBookProp) {
-    const newParam = { ...param };
-    newParam.borrowDate = new Date();
-
-    return this.userBookRepository.create(newParam);
   }
 
   public async borrowBooks(userId: number | string, params: Array<UserBookProp>)
@@ -79,12 +68,7 @@ export default class UserBookService implements IService<UserBookProp> {
 
         userBooks.forEach((userBook: UserBook) => {
           const returnDate = new Date();
-          const diffDay = dayjs(returnDate).diff(userBook.borrowDate, 'd');
-
-          if (diffDay > Constant.MAX_DAY_BORROW_BOOK) {
-            const lateDay = diffDay - Constant.MAX_DAY_BORROW_BOOK;
-            fine += lateDay * Constant.FINE_LATE_RETURN_BOOK_PER_DAY;
-          }
+          fine += countTotalFine(userBook.borrowDate);
 
           if (userBook.id) userBookIds.push(userBook.id);
 
@@ -109,10 +93,6 @@ export default class UserBookService implements IService<UserBookProp> {
 
       return null;
     }
-  }
-
-  public update(id: number | string, param: UserBookProp) {
-    return this.userBookRepository.update(param, { where: { id } });
   }
 
   public count({ filter }: ParamGet) {

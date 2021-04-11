@@ -34,7 +34,7 @@ export type BookProp = {
 
 const properties = {
   title: { type: 'string' },
-  author: { type: 'string' },
+  author: { type: 'array', minItems: 1 },
   sheet: { type: 'number' },
   introduction: { type: 'string' },
   dateOffIssue: { type: 'string', format: 'date-time' },
@@ -48,5 +48,11 @@ export const jsonPostSchema = {
     'author',
     'sheet',
   ],
+  additionalProperties: false,
+};
+
+export const jsonUpdateSchema = {
+  type: 'object',
+  properties,
   additionalProperties: false,
 };

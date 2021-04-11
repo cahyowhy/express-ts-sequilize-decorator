@@ -12,7 +12,11 @@
     "lint": "eslint . --ext .ts",
     "lint-fix": "eslint . --ext .ts --fix",
     "dev": "cross-env NODE_ENV=development nodemon ./src/index.ts --exec \"npm run lint && ts-node\"",
-    "dev-nolint": "cross-env NODE_ENV=development nodemon ./src/index.ts --exec"
+    "dev-nolint": "cross-env NODE_ENV=development nodemon ./src/index.ts --exec",
+    "coverage": "nyc --include src npm run test",
+    "coverage-nolint": "nyc --include src npm run test-nolint",
+    "coverage-report": "nyc --reporter=lcov --reporter=text-summary --include src npm run test",
+    "coverage-report-nolint": "nyc --reporter=lcov --reporter=text-summary --include src npm run test-nolint"
   },
   "author": "Cahyo Wibowo Widianarko",
   "license": "ISC",
@@ -20,6 +24,7 @@
     "ajv": "^6.12.6",
     "bcrypt": "^5.0.0",
     "cookie-parser": "^1.4.5",
+    "cors": "^2.8.5",
     "dayjs": "^1.10.4",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",

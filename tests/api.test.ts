@@ -7,8 +7,12 @@ import Book from '../src/model/Book';
 import UserSession from '../src/model/UserSession';
 import UserFineHistory from '../src/model/UserFineHistory';
 
+import seeder from '../seed/seeder';
+
 import setupApp from '../src/app';
 import UserTest from './api/user.test';
+import BookTest from './api/book.test';
+import UserBookTest from './api/userbook.test';
 
 require('dotenv').config({ path: '.env.test' });
 
@@ -28,10 +32,15 @@ const app = setupApp(sequelizeInstance);
 Container.bindName('app').to(app);
 
 const userTest = new UserTest();
+const bookTest = new BookTest();
+const userBookTest = new UserBookTest();
+Container.bindName('userTest').to(userTest);
 
 describe('API tests', () => {
   before((done) => {
-    sequelizeInstance.sync().then(() => done());
+    seeder(2, '.env.test', true).then(() => {
+      sequelizeInstance.sync().then(() => done());
+    });
   });
 
   userTest.create();
@@ -40,4 +49,18 @@ describe('API tests', () => {
   userTest.findById();
   userTest.update();
   userTest.count();
+  userTest.checkUserSession();
+  userTest.findUserBorowedBook();
+  userTest.logout();
+
+  bookTest.find();
+  bookTest.findById();
+  bookTest.update();
+  bookTest.create();
+  bookTest.count();
+
+  userBookTest.find();
+  userBookTest.count();
+  userBookTest.borrowBook();
+  userBookTest.returnBook();
 });

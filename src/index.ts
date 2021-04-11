@@ -1,4 +1,5 @@
 import 'reflect-metadata';
+import { Response } from 'express';
 import { Sequelize } from 'sequelize-typescript';
 import logger from './config/logger';
 
@@ -8,8 +9,11 @@ import Book from './model/Book';
 import UserSession from './model/UserSession';
 import UserFineHistory from './model/UserFineHistory';
 import setupApp from './app';
+import { CRequest } from './controller/IController';
 
 require('dotenv').config();
+
+const path = require('path');
 
 const sequelizeInstance = new Sequelize({
   dialect: 'postgres',
@@ -25,6 +29,10 @@ const sequelizeInstance = new Sequelize({
 
 sequelizeInstance.sync().then(() => {
   const app = setupApp(sequelizeInstance);
+
+  app.get('/', (_req: CRequest, res: Response) => {
+    res.sendFile(path.join(__dirname, '../web/index.html'));
+  });
 
   app.listen(3000, () => {
     logger.info('Started express on port 3000');

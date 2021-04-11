@@ -13,7 +13,7 @@ export const errorHandler = (err: any, _req: any, res: any, next: Function) => {
     return next(err);
   }
 
-  logger.error((err && err.name) || err.toString());
+  logger.error(err && ((err && err.message) || (err && err.name) || (err.toString())));
   return res.status(500).send({ success: false, message: err && err.stack });
 };
 

@@ -13,3 +13,7 @@ Example Express with typescript. Using Eslint with AirBnb config, JWT with refre
 1. copy `database.example.json` to `database.json` and fill based on `.env` value
 2. install `db-migrate` & `db-migrate-pg` on your local-machine `npm i -g db-migrate && npm i -g db-migrate-pg`
 3. more information visit [this](https://db-migrate.readthedocs.io/)
+
+## Incase of testing
+1. copy `.env.example` to `.env.test` and fill `.env` with valid value on test environment
+2. run `npm run test`

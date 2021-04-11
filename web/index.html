@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset='utf-8'>
+  <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+  <title>Page Title</title>
+  <meta name='viewport' content='width=device-width, initial-scale=1'>
+  <link rel='stylesheet' type='text/css' media='screen' href='main.css'>
+</head>
+
+<body>
+  <button id="btn-login">login</button>
+  <button id="btn-session">session</button>
+  <button id="btn-user">user</button>
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
+  <script>
+    $(document).ready(() => {
+      let token = '';
+
+      $('#btn-login').click(() => {
+        const param = { 'username': 'antonio30', 'password': '12345678' };
+        const url = 'http://localhost:3000/api/users/auth/login';
+
+        axios.post(url, param).then((response) => {
+          console.log(response);
+          token = (response && response.data && response.data.data && response.data.data.token) || '';
+        });
+      });
+
+      $('#btn-session').click(() => {
+        const url = 'http://localhost:3000/api/users/auth/session';
+
+        axios.get(url, { withCredentials: true }).then((response) => {
+          console.log(response);
+        });
+      });
+
+      $('#btn-user').click(() => {
+        const url = 'http://localhost:3000/api/users';
+
+        axios.get(url, {
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+          withCredentials: true
+        }).then((response) => {
+          console.log(response);
+        });
+      });
+    });
+  </script>
+</body>
+
+</html>
